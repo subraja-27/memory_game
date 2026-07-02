@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Memory Game</title>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            text-align:center;
+            background:linear-gradient(to right,#b19cc8,#642570);
+            color:white;
+        }
+
+        h1{
+            margin-top:20px;
+        }
+
+        #game{
+            width:550px;
+            margin:auto;
+            display:grid;
+            grid-template-columns:repeat(5,1fr);
+            gap:10px;
+            margin-top:20px;
+        }
+
+        .card{
+            height:90px;
+            background:white;
+            color:black;
+            font-size:35px;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            cursor:pointer;
+            border-radius:10px;
+            transition:0.4s;
+            box-shadow:0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .card:hover{
+            transform:scale(1.08);
+        }
+
+        .open{
+            background:rgb(87, 109, 209);
+        }
+
+        .matched{
+            background:lightgreen;
+            color:black;
+            animation:pulse 0.5s;
+        }
+
+        @keyframes pulse{
+            0%{
+                transform:scale(1);
+            }
+            50%{
+                transform:scale(1.2);
+            }
+            100%{
+                transform:scale(1);
+            }
+        }
+
+        #message{
+            font-size:28px;
+            margin-top:20px;
+            color:rgb(45, 9, 45);
+            font-weight:bold;
+        }
+
+        button{
+            margin-top:15px;
+            padding:10px 20px;
+            border:none;
+            background:rgb(50, 9, 31);
+            color:white;
+            font-size:16px;
+            border-radius:5px;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:rgb(132, 16, 79);
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🎮 Find The Match Game</h1>
+    <h2>Score : <span id="score">0</span></h2>
+
+    <div id="game"></div>
+
+    <div id="message"></div>
+
+    <button id="restart">Restart Game</button>
+
+<script>
+
+$(document).ready(function(){
+
+    function startGame(){
+
+        $("#game").html("");
+        $("#message").text("");
+        $("#score").text("0");
+
+        let cards = [
+            "😀","😀",
+            "😎","😎",
+            "🥺","🥺",
+            "😴","😴",
+            "😢","😢"
+        ];
+
+        cards.sort(() => Math.random() - 0.5);
+
+        let firstCard = null;
+        let secondCard = null;
+        let score = 0;
+
+        for(let i = 0; i < cards.length; i++){
+            $("#game").append(
+                `<div class="card" data-value="${cards[i]}">?</div>`
+            );
+        }
+
+        $(".card").click(function(){
+
+            if(secondCard !== null) return;
+
+            if($(this).hasClass("matched") || $(this).hasClass("open"))
+                return;
+
+            $(this).text($(this).data("value"));
+            $(this).addClass("open");
+
+            if(firstCard === null){
+
+                firstCard = $(this);
+
+            }else{
+
+                secondCard = $(this);
+
+                if(firstCard.data("value") === secondCard.data("value")){
+
+                    firstCard.addClass("matched");
+                    secondCard.addClass("matched");
+
+                    score += 10;
+                    $("#score").text(score);
+
+                    firstCard = null;
+                    secondCard = null;
+
+                    if($(".matched").length === cards.length){
+
+                        $("#message").html("🎉 Congratulations! Game Completed 🎉");
+
+                        $(".card").css({
+                            "animation":"pulse 1s infinite"
+                        });
+                    }
+
+                }else{
+
+                    setTimeout(function(){
+
+                        firstCard.text("?");
+                        secondCard.text("?");
+
+                        firstCard.removeClass("open");
+                        secondCard.removeClass("open");
+
+                        firstCard = null;
+                        secondCard = null;
+
+                    },1000);
+                }
+            }
+        });
+    }
+
+    startGame();
+
+    $("#restart").click(function(){
+        startGame();
+    });
+
+});
+
+</script>
+
+</body>
+</html>
